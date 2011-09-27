@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE beans PUBLIC "-//SPRING//DTD BEAN//EN" "http://www.springframework.org/dtd/spring-beans.dtd">
+
+<beans>
+
+	<bean id="clientService" 
+		class="grid.x.HazelcastCacheService"
+		factory-method="createInstance" 
+		lazy-init="true">
+		<constructor-arg type="String" value="cacheX" />
+	</bean>
+
+	<bean id="cacheServicex" 
+		class="grid.x.MapCacheService"
+		factory-method="createInstance" 
+		lazy-init="true">
+		<constructor-arg type="String" value="cacheXxx" />
+	</bean>
+
+	<bean id="cacheService" 
+		class="com.tangosol.net.CacheFactory"
+		factory-method="getCache" 
+		lazy-init="true">
+		<constructor-arg type="String" value="Dist-Cache" />
+	</bean>
+
+</beans>
