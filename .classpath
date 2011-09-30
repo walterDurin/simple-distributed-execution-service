@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<classpath>
+	<classpathentry kind="src" path="main/java"/>
+	<classpathentry kind="src" path="test/java"/>
+	<classpathentry excluding="main/java/|test/java/" kind="src" path=""/>
+	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
+	<classpathentry kind="con" path="org.eclipse.jdt.USER_LIBRARY/Spring-3.0.5"/>
+	<classpathentry kind="con" path="org.eclipse.jdt.USER_LIBRARY/Coherence-3.6.1"/>
+	<classpathentry kind="con" path="org.eclipse.jdt.USER_LIBRARY/GoogleCollections1.0"/>
+	<classpathentry kind="con" path="org.eclipse.jdt.USER_LIBRARY/JUnit4.8.2"/>
+	<classpathentry kind="con" path="org.eclipse.jdt.USER_LIBRARY/Log4J"/>
+	<classpathentry kind="lib" path="lib/aopalliance.jar"/>
+	<classpathentry kind="output" path="bin"/>
+</classpath>
