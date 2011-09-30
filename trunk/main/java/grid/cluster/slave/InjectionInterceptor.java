@@ -87,7 +87,7 @@ public class InjectionInterceptor implements IInterceptor
 					{
 						public void doWith(Field field)
 						{
-							log("Generating Injection Metadata for Field: "+field);
+							//log("Generating Injection Metadata for Field: "+field);
 							Inject injectionAnnotation = field.getAnnotation(Inject.class);
 							if (injectionAnnotation != null)
 							{

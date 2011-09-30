@@ -32,7 +32,6 @@ import java.util.concurrent.ThreadFactory;
 
 class RemoteExecutorNode<T> 
 {
-	private static final long serialVersionUID = 1L;
 	private ExecutorService exeService;
 	private IRemoteResultsHandler<T> resultsHandler;
 	private IWorkQueue<T> workQueue;
@@ -117,7 +116,6 @@ class RemoteExecutorNode<T>
 
 	private void submit(final IExecutable<T> executable)
     {
-		System.out.println("XZ "+executable);
     	preProcess(executable);
     	Runnable runnable = new Runnable() 
     	{
@@ -125,7 +123,6 @@ class RemoteExecutorNode<T>
             public void run()
             {
                	String uid = executable.getUID();
-        		System.out.println("XZz "+executable);
 				try
                 {
 	                final T returnedValue = executable.call();

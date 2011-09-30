@@ -14,9 +14,9 @@ import grid.util.Handler;
 public class TestHandler extends Handler<String>
 {
 
-    public TestHandler(IJob<?> job)
+    public TestHandler(String jobDescription)
     {
-	    super(job);
+	    super(jobDescription);
     }
     
 	@Override
@@ -25,6 +25,4 @@ public class TestHandler extends Handler<String>
 		super.onResult(r);
 		log("Handler - result: "+r.toString());
 	}
-
-
 }

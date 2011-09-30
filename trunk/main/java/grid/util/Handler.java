@@ -16,11 +16,10 @@
  */
 package grid.util;
 
-import grid.server.IJob;
-import grid.server.ITaskResult;
 import grid.server.IResultError;
 import grid.server.IResultHandler;
 import grid.server.ITask;
+import grid.server.ITaskResult;
 
 import java.util.Collection;
 import java.util.Collections;
@@ -38,7 +37,6 @@ import java.util.concurrent.CountDownLatch;
 public abstract class Handler<T> implements IResultHandler<T>
 {
 	private CountDownLatch completed = new CountDownLatch(1);
-	private final IJob<?> job;
 	private int resultCount;
 	private int rejectedCount;
 	private long elapsedTimeMillis;
@@ -46,12 +44,18 @@ public abstract class Handler<T> implements IResultHandler<T>
 	private boolean started;
 	private int errorCount;
     private final Map<String,Integer> threadCounts = new HashMap<String,Integer>();
+	private final String jobDescription;
 
-    public Handler(IJob<?> job)
+    public Handler(String jobDescription)
     {
-		this.job = job;    	
+		this.jobDescription = jobDescription;
     }
     
+    /**
+     * Waits/blocks until completion of tasks - i.e., until
+     * this handler's {@link #onCompleted()} method is called. 
+     * @throws InterruptedException
+     */
     public void await() throws InterruptedException
     {
     	this.completed.await();
@@ -64,7 +68,7 @@ public abstract class Handler<T> implements IResultHandler<T>
 	public void onCompleted()
 	{
 		this.elapsedTimeMillis = System.currentTimeMillis() - this.startTimeMillis;
-		log("Completed job "+this.job);
+		log("Completed job "+this.jobDescription);
 		completed.countDown();
 	}
 
@@ -95,7 +99,7 @@ public abstract class Handler<T> implements IResultHandler<T>
     @Override
     public String toString()
     {
-	    return "Handler [completed=" + this.completed + ", elapsedTimeMillis=" + this.elapsedTimeMillis + ", job=" + this.job + ", rejectedCount=" + this.rejectedCount
+	    return "Handler [completed=" + this.completed + ", elapsedTimeMillis=" + this.elapsedTimeMillis + ", job=" + this.jobDescription + ", rejectedCount=" + this.rejectedCount
 	            + ", resultCount=" + this.resultCount + "] "+threadCounts;
     }
 
@@ -142,7 +146,7 @@ public abstract class Handler<T> implements IResultHandler<T>
 		if(!started)
 		{
 			this.startTimeMillis = System.currentTimeMillis();
-			log("Started job "+job);
+			log("Started job "+jobDescription);
 		}
 		this.started = true;
 	}
