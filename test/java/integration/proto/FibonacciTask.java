@@ -4,6 +4,7 @@ import grid.server.ITask;
 import grid.server.ITaskResult;
 import grid.server.Inject;
 
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
@@ -23,14 +24,34 @@ import java.util.Map;
  */
 public class FibonacciTask implements ITask<String>
 {
-	private static int count = 0;
+	public static class Calculation implements Serializable
+	{
+		private static final long serialVersionUID = 1L;
+		public final String comment;
+		public final long calculation;
+		private final long number;
 
+		public Calculation(long number, long calculation) {
+			this.number = number;
+			this.calculation = calculation;
+			this.comment = Thread.currentThread().getName();
+		}
+
+		@Override
+		public String toString() {
+			return "Calculation [comment=" + comment + ", calculation="
+					+ calculation + ", number=" + number + "]";
+		}
+	}
+	
     private static final long serialVersionUID = 1L;
 
-//    static HashMap<Integer, Long>	pre	= new HashMap<Integer, Long>();
-
+    /**
+     * This field will be injected if this task is executed
+     * on the grid.
+     */
     @Inject(name = "cacheService")
-	public Map<Integer, Long> preCalcCache;// = pre;
+	public Map<Integer, Calculation> preCalcCache = new HashMap<Integer, Calculation>();
 
 	private final Integer id;
 	private String version = "Caf1";
@@ -42,14 +63,17 @@ public class FibonacciTask implements ITask<String>
 
 	public long fib(int n)
 	{
-		preCalcCache.put(0, 0L);
-		preCalcCache.put(1, 1L);
+		Calculation calcZero = new Calculation(0,0L);
+		Calculation calcOne = new Calculation(1,1L);
+		
+		preCalcCache.put(0, calcZero);
+		preCalcCache.put(1, calcOne);
 
-		Long x = preCalcCache.get(n);
+		Calculation x = preCalcCache.get(n);
 
 		if (x != null)
 		{
-			return x;
+			return x.calculation;
 		}
 		
 		if (n <= 1)
@@ -58,9 +82,9 @@ public class FibonacciTask implements ITask<String>
 		}
 		else // else where n >= 2
 		{
-			long f = fib(n - 1) + fib(n - 2);
-			preCalcCache.put(n, f);
-			return f;
+			long calc = fib(n - 1) + fib(n - 2);
+			preCalcCache.put(n, new Calculation(n,calc));
+			return calc;
 		}
 	}
 
@@ -99,13 +123,13 @@ public class FibonacciTask implements ITask<String>
     @Override
     public ITaskResult<String> call() throws Exception
     {
-		String result = "Fibonacci result = "+this.fib(4);
-//		Thread.sleep(++count*1);
-		System.out.println("Task: "+getID()+" executed - Result = "+result);
+		String result = "Fibonacci result = "+this.fib(20);
+		System.out.println("Task: "+getID()+" executed - Result = "+result);		
+		System.out.println("Calculation cache: "+this.preCalcCache.values() );
 		return new TestResult(getID(),result);
     }
     
-    public static Collection<ITask<String>> generateTasks(int count,int modCount)
+    public static Collection<ITask<String>> generateTasks(int count)
     {
 	    Collection<ITask<String>> list = new ArrayList<ITask<String>>();
 	    

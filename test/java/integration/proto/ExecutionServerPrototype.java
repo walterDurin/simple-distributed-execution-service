@@ -32,7 +32,7 @@ import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
  * 
  */
 @RunWith(SpringJUnit4ClassRunner.class)
-@ContextConfiguration()
+@ContextConfiguration(locations={"/test/resources/ExecutionServerPrototype-context.xml"})
 public class ExecutionServerPrototype
 {
 	@Autowired
@@ -48,7 +48,7 @@ public class ExecutionServerPrototype
 	public void singleBroker() throws Throwable
 	{
 		boolean federated = false;
-		createServer(4,federated);
+		createServer(17,federated);
 	}
 
 	@Test
@@ -100,7 +100,7 @@ public class ExecutionServerPrototype
 		final ExecutionServer server = new ExecutionServer(this.taskExecutors);
 
 		final TestJob job = new TestJob(amount);
-        Handler<String> handler = new TestHandler(job);
+        Handler<String> handler = new TestHandler(job.toString());
         job.setHandler(handler);
 
         (new Thread(new Runnable() 
@@ -187,7 +187,7 @@ public class ExecutionServerPrototype
         @Override
         public Iterator<ITask<String>> tasks()
         {
-        	Collection<ITask<String>> tasks = FibonacciTask.generateTasks(taskCount, 3);
+        	Collection<ITask<String>> tasks = FibonacciTask.generateTasks(taskCount);
 	        return tasks.iterator(); 
         }
 	}
