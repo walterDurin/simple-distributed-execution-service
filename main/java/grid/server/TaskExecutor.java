@@ -202,6 +202,7 @@ public class TaskExecutor implements ITaskExecutor
     	return this.invocationService.submit(task);
     }
 
+    @SuppressWarnings("unchecked")
     public Future<ITaskResult<?>> submit(IExecutable<?> executable)
     {
     	return this.invocationService.submit((Callable<ITaskResult<?>>) executable.getCallable());

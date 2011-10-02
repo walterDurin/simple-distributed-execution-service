@@ -19,7 +19,12 @@ package grid.cluster.shared;
 import java.io.Serializable;
 import java.util.List;
 
+import com.sun.corba.se.pept.broker.Broker;
+
 /**
+ * A simle data object that holds {@link Broker} configuration 
+ * and is used in remoting.
+ * 
  * @author rkehoe
  *
  */

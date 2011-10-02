@@ -40,7 +40,7 @@ import java.util.concurrent.TimeUnit;
 public class RemoteInvocationService extends AbstractExecutorService implements IInvocationService
 {
 	private static final int DEFAULT_BROKER_PORT = 54321;
-	private static final String DEFAULT_SERVICE_NAME = "DefaultServiceName";
+	private static final String DEFAULT_SERVICE_NAME = "DefaultRIBroker";
 
 	/**
 	 * This base executor service is tethered
@@ -53,9 +53,12 @@ public class RemoteInvocationService extends AbstractExecutorService implements 
 	private final Broker<Object> broker;
 	private String serviceName;
 
-	/**
-	 * @param remoteNodeThreadpoolSize 
-     * 
+    /**
+     * @param brokerPort
+     * @param jvmNodeParams
+     * @param gridConfig
+     * @param serviceName
+     * @throws RemoteException
      */
     public RemoteInvocationService(int brokerPort, List<String> jvmNodeParams, GridConfig gridConfig,String serviceName) throws RemoteException
     {

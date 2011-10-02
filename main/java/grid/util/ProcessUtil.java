@@ -56,6 +56,7 @@ public class ProcessUtil
             this.is = is;
         }
         
+        @SuppressWarnings("unused")
         public String output()
         {
             return sb.toString();

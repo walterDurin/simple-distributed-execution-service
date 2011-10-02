@@ -107,7 +107,7 @@ public class ExecutionServer
 
 		try
         {
-	        for (int ii = 0; it.hasNext(); ii++)
+	        for (;it.hasNext();)
 	        {
 	        	ITask<T> task = it.next();
 	        	batch.add(task);

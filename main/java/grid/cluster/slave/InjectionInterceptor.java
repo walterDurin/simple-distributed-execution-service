@@ -72,7 +72,7 @@ public class InjectionInterceptor implements IInterceptor
 	private InjectionMetadata findAutowiringMetadata(final Class<?> clazz)
 	{
 		InjectionMetadata metadata = this.injectionMetadataCache.get(clazz);
-		//log("Generating Injection Metadata for Class: "+clazz);
+		log("Generating Injection Metadata for Class: "+clazz);
 
 		if (metadata == null)
 		{
@@ -87,7 +87,7 @@ public class InjectionInterceptor implements IInterceptor
 					{
 						public void doWith(Field field)
 						{
-							//log("Generating Injection Metadata for Field: "+field);
+							log("Generating Injection Metadata for Field: "+field);
 							Inject injectionAnnotation = field.getAnnotation(Inject.class);
 							if (injectionAnnotation != null)
 							{
@@ -115,7 +115,8 @@ public class InjectionInterceptor implements IInterceptor
 	private class InjectionMetadata
 	{
 		private Set<InjectedFieldElement> injectedFields = new LinkedHashSet<InjectedFieldElement>();
-		private final Class<?> clazz;
+		@SuppressWarnings("unused")
+        private final Class<?> clazz;
 
 		/**
          * @param clazz

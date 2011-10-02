@@ -438,7 +438,7 @@ public class BlockingMap<K, V>
 				}
 			};
 			t.start();
-			t.sleep(200);
+			Thread.sleep(200);
 		}
 
 		log("Contents: " + map2);
