@@ -19,7 +19,7 @@
 		<constructor-arg index="1" >				<!-- node jvm args -->
 			<util:list list-class="java.util.ArrayList">
 				<value>-Dtangosol.coherence.cacheconfig=dist-cache-config.xml</value>
-				<value>-Xmx16m</value>
+				<value>-Xms16m</value>
 				<value>-Xmx100m</value>				
 			</util:list>		
 		</constructor-arg>

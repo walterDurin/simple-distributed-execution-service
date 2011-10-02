@@ -16,7 +16,7 @@
  */
 package grid.federation;
 
-import grid.cluster.master.InvocationService;
+import grid.cluster.master.RemoteInvocationService;
 import grid.cluster.shared.GridConfig;
 import grid.cluster.shared.IBroker;
 import grid.cluster.shared.IExecutable;
@@ -72,7 +72,7 @@ public class FederatedCluster
 
 		GridConfig gridConfig = masterBroker.getBrokerInfo().getConfig();
 		List<String> jvmNodeParams = masterBroker.getBrokerInfo().getJvmNodeParams();
-		InvocationService is = new InvocationService(port,jvmNodeParams,gridConfig,serviceName);
+		RemoteInvocationService is = new RemoteInvocationService(port,jvmNodeParams,gridConfig,serviceName);
 		is.getBroker().unPause();
 		
 		final TaskExecutor taskExecutor = new TaskExecutor(is);
