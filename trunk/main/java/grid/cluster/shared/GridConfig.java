@@ -26,11 +26,30 @@ public class GridConfig implements Serializable
 {
     private static final long serialVersionUID = 1L;
 
-	private int remoteNodeThreadpoolSize;
-	private int clusterSize; 
-	private String libraryPath;
-	private String libraryName;
-	private String injectionContext;
+	public static final int DEFAULT_THREADPOOL_SIZE = 10;
+
+	public static final int DEFAULT_CLUSTER_SIZE = 4;
+
+	private int remoteNodeThreadpoolSize = DEFAULT_THREADPOOL_SIZE;
+	private int clusterSize = DEFAULT_CLUSTER_SIZE; 
+	private String libraryPath = "";
+	private String libraryName = "";
+	private String injectionContext = "";
+	
+	public boolean libraryPathDefined()
+	{
+		return !this.libraryPath.isEmpty();
+	}
+	
+	public boolean libraryNameDefined()
+	{
+		return !this.libraryName.isEmpty();
+	}
+	
+	public boolean injectionContextDefined()
+	{
+		return !this.injectionContext.isEmpty();
+	}
 	/**
      * @return the remoteNodeThreadpoolSize
      */

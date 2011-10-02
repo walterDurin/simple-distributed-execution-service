@@ -1,13 +1,14 @@
 package examples;
 
 import grid.server.ITask;
-import grid.server.Inject;
 import grid.server.TaskExecutor;
-import grid.server.TaskExecutors;
 import integration.proto.FibonacciTask;
 import integration.proto.TestHandler;
 
 import java.util.Collection;
+
+import org.springframework.context.ApplicationContext;
+import org.springframework.context.support.ClassPathXmlApplicationContext;
 
 /**
  * 	Copyright 2011 rkehoe
@@ -27,17 +28,17 @@ import java.util.Collection;
  */
 
 /**
- * Simple non-Spring example of distributed execution  of 
- * {@link FibonacciTask} - but with no runtime injection 
- * (@see {@link Inject}).
  * 
  * @author rkehoe
  */
-public class HelloWorld
+public class HelloWorldWithSpring
 {
+
 	public static void main(String[] args) throws Exception
 	{
-		TaskExecutor executor = TaskExecutors.newFixedCluster(3,1,"-Xms20m");
+		ApplicationContext context = new ClassPathXmlApplicationContext("ExecutionServerPrototype-context.xml");		
+
+		TaskExecutor executor = context.getBean(TaskExecutor.class);
 
 		executor.unPause();
 

@@ -85,14 +85,21 @@ public class NodeMain
 		RemoteExecutorNode<Object> remoteExecutor = new RemoteExecutorNode<Object>(broker);
 
 		GridConfig gridConfig = broker.getBrokerInfo().getConfig();
-		String libraryPath = gridConfig.getLibraryPath();
-		ClassLoader loader = getClassLoader(libraryPath);
-		Thread.currentThread().setContextClassLoader(loader);
+		
+		if(gridConfig.libraryPathDefined()) {
+			String libraryPath = gridConfig.getLibraryPath();
+			ClassLoader loader = getClassLoader(libraryPath);
+			Thread.currentThread().setContextClassLoader(loader);
+		}
 
-		String injectionContext = gridConfig.getInjectionContext();
-		ApplicationContext ctx = new ClassPathXmlApplicationContext(injectionContext);
-		IInterceptor interceptor = new InjectionInterceptor(ctx);
-		remoteExecutor.add(interceptor);
+		if(gridConfig.injectionContextDefined())
+		{
+			String injectionContext = gridConfig.getInjectionContext();
+			ApplicationContext ctx = new ClassPathXmlApplicationContext(injectionContext);
+			IInterceptor interceptor = new InjectionInterceptor(ctx);
+			remoteExecutor.add(interceptor);			
+		}
+
 		remoteExecutor.start();
 	}
 

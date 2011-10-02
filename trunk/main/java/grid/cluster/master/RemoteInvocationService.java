@@ -37,8 +37,11 @@ import java.util.concurrent.TimeUnit;
  * @author rkehoe
  *
  */
-public class InvocationService extends AbstractExecutorService implements IInvocationService
+public class RemoteInvocationService extends AbstractExecutorService implements IInvocationService
 {
+	private static final int DEFAULT_BROKER_PORT = 54321;
+	private static final String DEFAULT_SERVICE_NAME = "DefaultServiceName";
+
 	/**
 	 * This base executor service is tethered
 	 * to the remote JVM's executors. 
@@ -54,12 +57,22 @@ public class InvocationService extends AbstractExecutorService implements IInvoc
 	 * @param remoteNodeThreadpoolSize 
      * 
      */
-    public InvocationService(int brokerPort, List<String> jvmNodeParams, GridConfig gridConfig,String serviceName) throws RemoteException
+    public RemoteInvocationService(int brokerPort, List<String> jvmNodeParams, GridConfig gridConfig,String serviceName) throws RemoteException
     {
     	this.broker = new Broker<Object>(brokerPort,jvmNodeParams,gridConfig,serviceName);
     	this.serviceName = gridConfig.getLibraryName();
     }
     
+	/**
+     * @param gridConfig
+     * @param nodeCmdLineArgs
+	 * @throws RemoteException 
+     */
+    public RemoteInvocationService(GridConfig gridConfig, List<String> jvmNodeParams) throws RemoteException
+    {
+    	this(DEFAULT_BROKER_PORT,jvmNodeParams,gridConfig,DEFAULT_SERVICE_NAME);
+    }
+
 	/* (non-Javadoc)
      * @see grid.cluster.master.IRemoteExecutorService#start()
      */
@@ -68,7 +81,7 @@ public class InvocationService extends AbstractExecutorService implements IInvoc
     {
     	this.log("Starting local execution service of size="+this.getBroker().getClusterSize()+" for Broker "+this.serviceName);
     	this.localExecutorService = Executors.newFixedThreadPool(this.getBroker().getClusterSize());
-    	this.getBroker().start();
+    	this.broker.start();
     }
 
     /* (non-Javadoc)
@@ -95,8 +108,7 @@ public class InvocationService extends AbstractExecutorService implements IInvoc
 	@Override
 	public boolean awaitTermination(long timeout, TimeUnit unit) throws InterruptedException
 	{
-		// TODO Auto-generated method stub
-		return false;
+		return this.localExecutorService.awaitTermination(timeout, unit);
 	}
 
 	/* (non-Javadoc)
@@ -105,8 +117,8 @@ public class InvocationService extends AbstractExecutorService implements IInvoc
 	@Override
 	public boolean isShutdown()
 	{
-		// TODO Auto-generated method stub
-		return false;
+		boolean shutdown = this.localExecutorService.isShutdown();
+		return shutdown;
 	}
 
 	/* (non-Javadoc)
@@ -115,8 +127,8 @@ public class InvocationService extends AbstractExecutorService implements IInvoc
 	@Override
 	public boolean isTerminated()
 	{
-		// TODO Auto-generated method stub
-		return false;
+		boolean terminated = this.localExecutorService.isTerminated();
+		return terminated;
 	}
 
     private void log(String x)
@@ -134,7 +146,7 @@ public class InvocationService extends AbstractExecutorService implements IInvoc
 		log("Shutting down Broker");
 		try
         {
-	        this.getBroker().shutDown();
+	        this.broker.shutDown();
         }
         catch (Exception e)
         {
@@ -148,8 +160,17 @@ public class InvocationService extends AbstractExecutorService implements IInvoc
 	@Override
 	public List<Runnable> shutdownNow()
 	{
-		// TODO Auto-generated method stub
-		return null;
+		List<Runnable> shutdownNow = this.localExecutorService.shutdownNow();
+		log("Shutting down Broker");
+		try
+        {
+	        this.broker.shutDown();
+        }
+        catch (Exception e)
+        {
+	        throw new RuntimeException( e );
+        }
+		return shutdownNow;
 	}
 
 	/* (non-Javadoc)
@@ -169,7 +190,7 @@ public class InvocationService extends AbstractExecutorService implements IInvoc
 	protected <K> RunnableFuture<K> newTaskFor(Callable<K> callable)
 	{
     	IExecutable<K> exe = this.getExecutable(callable);
-    	FutureTask<?> future = this.getBroker().dispatch((IExecutable<Object>) exe);
+    	FutureTask<?> future = this.broker.dispatch((IExecutable<Object>) exe);
         return (RunnableFuture<K>) future; 		
 	}
 	
