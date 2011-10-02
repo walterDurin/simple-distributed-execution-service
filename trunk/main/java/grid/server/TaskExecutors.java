@@ -33,10 +33,10 @@ public class TaskExecutors {
 	/**
 	 * @param numberClusterNodes
 	 * @param threadsPerNode
-	 * @param nodeJVMArguments
+	 * @param nodeJVMArguments - variable length arguments (zero or more) 
 	 * @return
 	 */
-	public static TaskExecutor newFixedCluster(int numberClusterNodes, int threadsPerNode, String ... nodeJVMArguments )
+	public static ITaskExecutor newFixedCluster(int numberClusterNodes, int threadsPerNode, String ... nodeJVMArguments )
     {
     	//TODO - can we streamline GridConfig? 
     	/**
