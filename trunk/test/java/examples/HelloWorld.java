@@ -1,6 +1,7 @@
 package examples;
 
 import grid.server.ITask;
+import grid.server.ITaskExecutor;
 import grid.server.Inject;
 import grid.server.TaskExecutor;
 import grid.server.TaskExecutors;
@@ -37,7 +38,7 @@ public class HelloWorld
 {
 	public static void main(String[] args) throws Exception
 	{
-		TaskExecutor executor = TaskExecutors.newFixedCluster(3,1,"-Xms20m");
+		ITaskExecutor executor = TaskExecutors.newFixedCluster(3,1,"-Xms20m");
 
 		executor.unPause();
 

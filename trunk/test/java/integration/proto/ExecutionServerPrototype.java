@@ -32,7 +32,7 @@ import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
  * 
  */
 @RunWith(SpringJUnit4ClassRunner.class)
-@ContextConfiguration(locations={"/test/resources/ExecutionServerPrototype-context.xml"})
+@ContextConfiguration(locations={"/ExecutionServerPrototype-context.xml"})
 public class ExecutionServerPrototype
 {
 	@Autowired
@@ -44,7 +44,7 @@ public class ExecutionServerPrototype
 		
 	}
 	
-	@Test
+	//@Test
 	public void singleBroker() throws Throwable
 	{
 		boolean federated = false;
@@ -52,7 +52,7 @@ public class ExecutionServerPrototype
 	}
 
 	@Test
-	@Ignore
+//	@Ignore
 	public void multiBroker() throws Throwable
 	{
 		createFederatedBroker();
