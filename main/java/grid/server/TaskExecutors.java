@@ -31,12 +31,24 @@ import java.util.List;
 public class TaskExecutors {
 
 	/**
-	 * @param numberClusterNodes
-	 * @param threadsPerNode
+	 * @param numberClusterNodes - number of node in the cluster
+	 * @param threadsPerNode - the size of the operational ThreadPool on each node
 	 * @param nodeJVMArguments - variable length arguments (zero or more) 
 	 * @return
 	 */
 	public static ITaskExecutor newFixedCluster(int numberClusterNodes, int threadsPerNode, String ... nodeJVMArguments )
+    {
+		return newFixedCluster(null, numberClusterNodes, threadsPerNode, nodeJVMArguments);
+    }
+
+	/**
+	 * @param injectionContextFileName - the name of the Spring bean file that will provide beans for injected (with @link {@link Inject})
+	 * @param numberClusterNodes - number of node in the cluster
+	 * @param threadsPerNode - the size of the operational ThreadPool on each node
+	 * @param nodeJVMArguments - variable length arguments (zero or more) 
+	 * @return
+	 */
+	public static ITaskExecutor newFixedCluster(String injectionContextFileName, int numberClusterNodes, int threadsPerNode, String ... nodeJVMArguments )
     {
     	//TODO - can we streamline GridConfig? 
     	/**
@@ -66,6 +78,7 @@ public class TaskExecutors {
 			GridConfig gridConfig = new GridConfig();
 			gridConfig.setClusterSize(numberClusterNodes);
 			gridConfig.setRemoteNodeThreadpoolSize(threadsPerNode);
+			gridConfig.setInjectionContext(injectionContextFileName);
 			
 			List<String> nodeCmdLineArgs = Arrays.asList(nodeJVMArguments);
 			IInvocationService invocationService = new RemoteInvocationService(gridConfig,nodeCmdLineArgs);

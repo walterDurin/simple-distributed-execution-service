@@ -1,6 +1,8 @@
 package integration.proto;
 
+import java.io.Serializable;
 import java.util.HashMap;
+import java.util.concurrent.Callable;
 
 /**
  * In mathematics, the Fibonacci numbers are the following sequence of numbers:
@@ -14,19 +16,35 @@ import java.util.HashMap;
  * NB also a good example of recursion.
  * 
  */
-public class Fibonacci
+public class Fibonacci implements Callable<String>,Serializable
 {
-	static HashMap<Integer, Long>	pre	= new HashMap<Integer, Long>();
+    private static final long serialVersionUID = 1L;
 
-	static
-	{
-		pre.put(0, 0L);
-		pre.put(1, 1L);
-	}
+	private HashMap<Integer, Long>	resultsCache	= new HashMap<Integer, Long>();
+	
+	private final int number;
 
-	public static long fib(int n)
+    public Fibonacci(int number)
+    {
+		this.number = number;
+    }
+
+	/* (non-Javadoc)
+     * @see java.util.concurrent.Callable#call()
+     */
+    @Override
+    public String call() throws Exception
+    {
+		resultsCache.put(0, 0L);
+		resultsCache.put(1, 1L);
+
+		long fib = this.fib(number);
+	    return "Fibonacci("+number+") = "+fib+" @"+Thread.currentThread().getName()+";";
+    }
+
+	public long fib(int n)
 	{
-		Long x = pre.get(n);
+		Long x = resultsCache.get(n);
 
 		if (x != null)
 		{
@@ -40,17 +58,17 @@ public class Fibonacci
 		else // else where n >= 2
 		{
 			long f = fib(n - 1) + fib(n - 2);
-			pre.put(n, f);
+			resultsCache.put(n, f);
 			return f;
 		}
 	}
 
-	public static void main(String[] args)
+	public static void main(String[] args) throws Exception
 	{
-		int N = 100;
+		int N = 92;
 		for (int i = 1; i <= N; i++)
 		{
-			System.out.println(i + ": " + fib(i));
+			System.out.println(new Fibonacci(i).call());
 		}
 	}
 }

@@ -3,7 +3,6 @@
  */
 package integration.proto;
 
-import grid.server.IJob;
 import grid.server.ITaskResult;
 import grid.util.Handler;
 
@@ -23,6 +22,6 @@ public class TestHandler extends Handler<String>
 	public void onResult(ITaskResult<String> r)
 	{
 		super.onResult(r);
-		log("Handler - result: "+r.toString());
+		log("Handler - result: "+r.get());
 	}
 }

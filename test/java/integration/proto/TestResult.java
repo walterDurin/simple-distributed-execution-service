@@ -9,7 +9,7 @@ import grid.server.ITaskResult;
  * @author rkehoe
  *
  */
-public class TestResult implements ITaskResult
+public class TestResult implements ITaskResult<String>
 {
 	/**
      * 
@@ -52,7 +52,7 @@ public class TestResult implements ITaskResult
      * @see grid.server.ITaskResult#get()
      */
     @Override
-    public Object get()
+    public String get()
     {
 	    return result;
     }

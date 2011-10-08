@@ -1,6 +1,7 @@
 package examples;
 
 import grid.server.ITask;
+import grid.server.Inject;
 import grid.server.TaskExecutor;
 import integration.proto.FibonacciTask;
 import integration.proto.TestHandler;
@@ -28,6 +29,10 @@ import org.springframework.context.support.ClassPathXmlApplicationContext;
  */
 
 /**
+ * Spring based example of distributed execution of {@link FibonacciTask}.
+ * The {@link TaskExecutor} used is a Spring bean and there is
+ * injection at runtime for injected fields (@see {@link Inject})
+ * within the {@link FibonacciTask}.
  * 
  * @author rkehoe
  */
