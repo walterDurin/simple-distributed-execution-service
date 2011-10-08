@@ -48,7 +48,7 @@ public class GridConfig implements Serializable
 	
 	public boolean injectionContextDefined()
 	{
-		return !this.injectionContext.isEmpty();
+		return this.injectionContext!=null && !this.injectionContext.isEmpty();
 	}
 	/**
      * @return the remoteNodeThreadpoolSize

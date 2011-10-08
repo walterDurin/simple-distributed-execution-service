@@ -3,7 +3,6 @@ package examples;
 import grid.server.ITask;
 import grid.server.ITaskExecutor;
 import grid.server.Inject;
-import grid.server.TaskExecutor;
 import grid.server.TaskExecutors;
 import integration.proto.FibonacciTask;
 import integration.proto.TestHandler;
@@ -43,7 +42,7 @@ public class HelloWorld
 		executor.unPause();
 
     	Collection<ITask<String>> tasks = FibonacciTask.generateTasks(3);
-		
+
     	TestHandler handler = new TestHandler("TestHelloWorld");
 
 		executor.execute(tasks,handler);		
