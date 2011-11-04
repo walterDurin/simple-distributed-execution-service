@@ -20,6 +20,7 @@ import grid.cluster.shared.BrokerInfo;
 import grid.cluster.shared.GridConfig;
 import grid.cluster.shared.IBroker;
 import grid.cluster.shared.IExecutable;
+import grid.cluster.shared.IProgressMonitor;
 import grid.cluster.shared.IRemoteResult;
 import grid.cluster.shared.IRemoteResultsHandler;
 import grid.cluster.shared.IWorkQueue;
@@ -52,9 +53,7 @@ import org.springframework.remoting.rmi.RmiServiceExporter;
 public class Broker<V> implements IBroker<V>
 {
     private static final long serialVersionUID = -7711272717758613782L;
-	/**
-     * @param x
-     */
+
     private static void log(String x)
     {
 	    System.out.println(x);
@@ -69,6 +68,7 @@ public class Broker<V> implements IBroker<V>
 	transient private List<Process> processList = new ArrayList<Process>();
 	transient private final List<String> jvmNodeParams;
 	transient private int connectionID = 0;
+	transient private ProgressMonitor progressMonitor = new ProgressMonitor();
 
 	private final int port;
 	private int workQueueCallNumber;
@@ -155,7 +155,32 @@ public class Broker<V> implements IBroker<V>
 			blockingMap.putIfAbsent(r.getUID(), r);
 	    }
 	}
-	
+
+	private final class ProgressMonitor extends UnicastRemoteObject implements IProgressMonitor<String>,Serializable
+	{		
+		private static final long serialVersionUID = 2362910027458128946L;
+		protected ProgressMonitor() throws RemoteException
+	    {
+	        super();
+	    }
+		/* (non-Javadoc)
+         * @see grid.cluster.shared.IProgressMonitor#accept(grid.cluster.shared.IProgress)
+         */
+//        @Override
+//        public void accept(IProgress<String> p) throws RemoteException
+//        {
+//        	System.out.println("XXXX "+p.getProgress());
+//        }
+		/* (non-Javadoc)
+         * @see grid.cluster.shared.IProgressMonitor#accept(java.lang.String)
+         */
+        @Override
+        public void accept(String monitoringMsg) throws RemoteException
+        {
+        	System.out.println("Received monitoring msg: "+monitoringMsg);
+        }
+	}
+
     private final FutureTask<V> getFutureRemoveTask(final String key)
     {
 		Callable<V> task = new Callable<V>()
@@ -320,7 +345,16 @@ public class Broker<V> implements IBroker<V>
         {
         	e.printStackTrace();
         }
-        
+
+        try
+        {
+	        UnicastRemoteObject.unexportObject(progressMonitor,true);
+        }
+        catch (NoSuchObjectException e)
+        {
+        	e.printStackTrace();
+        }
+
 		this.rmiServiceExporter.destroy();
 		Broker.log("Shutting down");
 	}
@@ -350,5 +384,14 @@ public class Broker<V> implements IBroker<V>
     public BrokerInfo getBrokerInfo() throws RemoteException
     {
 	    return brokerInfo;
+    }
+
+	/* (non-Javadoc)
+     * @see grid.cluster.shared.IBroker#getProgressMonitor()
+     */
+    @Override
+    public IProgressMonitor<?> getProgressMonitor() throws RemoteException
+    {
+	    return this.progressMonitor;
     }
 }

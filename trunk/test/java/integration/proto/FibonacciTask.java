@@ -1,12 +1,13 @@
 package integration.proto;
 
+import grid.cluster.shared.IProgressMonitor;
 import grid.server.ITask;
 import grid.server.ITaskResult;
 import grid.server.Inject;
+import grid.server.Monitor;
 
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.HashMap;
 import java.util.Map;
 
 /**
@@ -32,8 +33,11 @@ public class FibonacciTask implements ITask<String>
      * the initialising local HashMap as a cache. 
      */
     @Inject(name = "cacheService")
-	public Map<Integer, Long> resultsCache = new HashMap<Integer, Long>();
+	public Map<Integer, Long> resultsCache = null;//new HashMap<Integer, Long>();
 
+    @Monitor
+    private IProgressMonitor<String> monitor;
+    
 	private final Integer id;
 	private String version = "Caf1";
 
@@ -100,9 +104,12 @@ public class FibonacciTask implements ITask<String>
 		resultsCache.put(0, 0L);
 		resultsCache.put(1, 1L);
 
+		monitor.accept("This is a progress msg from task "+getID());
+
 		String result = "Fibonacci result = "+this.fib(20)+" (Calculated by "+Thread.currentThread().getName()+")";
 		System.out.println("Task: "+getID()+" executed - Result = "+result);		
 		System.out.println("Calculation cache: "+this.resultsCache.values() );
+
 		return new TestResult(getID(),result);
     }
     

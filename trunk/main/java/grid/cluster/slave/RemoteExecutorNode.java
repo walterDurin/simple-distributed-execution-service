@@ -18,6 +18,8 @@ package grid.cluster.slave;
 
 import grid.cluster.shared.IBroker;
 import grid.cluster.shared.IExecutable;
+import grid.cluster.shared.IProgress;
+import grid.cluster.shared.IProgressMonitor;
 import grid.cluster.shared.IRemoteResultsHandler;
 import grid.cluster.shared.IWorkQueue;
 
@@ -38,7 +40,7 @@ class RemoteExecutorNode<T>
 	private int threadpoolSize;
 	private Integer connectionID;
 	protected String brokerServiceName;
-	private transient ArrayList<IInterceptor> interceptors = new ArrayList<IInterceptor>(); 
+	private transient ArrayList<IInterceptor> interceptors = new ArrayList<IInterceptor>();
 	
     public RemoteExecutorNode(IBroker<T> broker) throws RemoteException
     {
@@ -101,6 +103,16 @@ class RemoteExecutorNode<T>
     		    return null;
     	    }
     	});
+    	
+    	IInterceptor methodInterceptor = new IInterceptor() {
+			@Override
+            public void process(IExecutable<?> ex)
+            {
+	            
+            }
+		};
+
+        this.add(methodInterceptor);
     }
 
     final private synchronized void stop()
