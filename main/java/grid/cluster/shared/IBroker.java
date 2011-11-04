@@ -42,10 +42,11 @@ public interface IBroker<V> extends Serializable
 //    public void offerFederatedWorkQueue(IFederatedWorkQueue<Object> fwq) throws RemoteException;
 
 	public void unPause() throws RemoteException;
+
 	public void pause() throws RemoteException;
 	
-	/**
-     * @return
-     */
     public Integer getConnectionID() throws RemoteException;
+    
+	public  IProgressMonitor<?> getProgressMonitor() throws RemoteException;
+
 }

@@ -100,6 +100,9 @@ public class NodeMain
 			remoteExecutor.add(interceptor);			
 		}
 
+		IInterceptor interceptor = new MonitorInterceptor(broker.getProgressMonitor());
+		remoteExecutor.add(interceptor);			
+
 		remoteExecutor.start();
 	}
 

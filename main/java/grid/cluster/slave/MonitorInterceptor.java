@@ -17,7 +17,9 @@
 package grid.cluster.slave;
 
 import grid.cluster.shared.IExecutable;
+import grid.cluster.shared.IProgressMonitor;
 import grid.server.Inject;
+import grid.server.Monitor;
 
 import java.lang.reflect.Field;
 import java.lang.reflect.Modifier;
@@ -34,18 +36,20 @@ import org.springframework.util.ReflectionUtils;
  * @author rkehoe
  * 
  */
-public class InjectionInterceptor implements IInterceptor
+public class MonitorInterceptor implements IInterceptor
 {
+
 	private final Map<Class<?>, InjectionMetadata>	injectionMetadataCache	= new ConcurrentHashMap<Class<?>, InjectionMetadata>();
-	private final ApplicationContext ctx;
+	private final IProgressMonitor<?> progressMonitor;
 
 	/**
-	 * @param ctx
-	 */
-	public InjectionInterceptor(ApplicationContext ctx)
-	{
-		this.ctx = ctx;
-	}
+     * @param progressMonitor
+     */
+    public MonitorInterceptor(IProgressMonitor<?> progressMonitor)
+    {
+		this.progressMonitor = progressMonitor;
+    	
+    }
 
 	/* (non-Javadoc)
      * @see grid.service.IInterceptor#process(grid.common.IExecutable)
@@ -88,15 +92,15 @@ public class InjectionInterceptor implements IInterceptor
 						{
 							log("Generating Injection Metadata for Field: "+field);
 							
-							Inject injectionAnnotation = field.getAnnotation(Inject.class);
-							if (injectionAnnotation != null)
+							Monitor monitorAnnotation = field.getAnnotation(Monitor.class);
+							if (monitorAnnotation != null)
 							{
 								if (Modifier.isStatic(field.getModifiers()))
 								{
 									throw new IllegalStateException("Autowired annotation is not supported on static fields");
 								}
 								ReflectionUtils.makeAccessible(field);
-								InjectedFieldElement injectedFieldElement = new InjectedFieldElement(field,injectionAnnotation);
+								InjectedFieldElement injectedFieldElement = new InjectedFieldElement(field,monitorAnnotation);
 								log("Found injected field: "+injectedFieldElement);
 								newMetadata.addInjectedField(injectedFieldElement);
 							}
@@ -112,7 +116,7 @@ public class InjectionInterceptor implements IInterceptor
 		return metadata;
 	}
 
-	public static class InjectionMetadata
+	private class InjectionMetadata
 	{
 		private Set<InjectedFieldElement> injectedFields = new LinkedHashSet<InjectedFieldElement>();
 		@SuppressWarnings("unused")
@@ -150,17 +154,17 @@ public class InjectionInterceptor implements IInterceptor
 	private class InjectedFieldElement
 	{
 		private final Field field;
-		private final Inject annotation;
+		private final Monitor annotation;
 		private Object bean;
 
 		/**
          * @param field
-         * @param injectionAnnotation
+         * @param monitorAnnotation
          */
-        public InjectedFieldElement(Field field, Inject injectionAnnotation)
+        public InjectedFieldElement(Field field, Monitor monitorAnnotation)
         {
 			this.field = field;
-			this.annotation = injectionAnnotation;
+			this.annotation = monitorAnnotation;
         }
 
 		/**
@@ -189,8 +193,7 @@ public class InjectionInterceptor implements IInterceptor
         {
         	if(this.bean == null)
         	{ 
-        		Class<?> type = this.field.getType();
-        		this.bean = ctx.getBean(this.annotation.name(),type);
+        		this.bean = progressMonitor; 
         	}
         	return this.bean;
         }
