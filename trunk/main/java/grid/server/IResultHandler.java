@@ -32,8 +32,5 @@ public interface IResultHandler<T>
     void onError(Throwable e);
     void onCompleted();
     void onRejection(Collection<ITask<T>> rejectedTasks);
-	/**
-     * @return
-     */
     Map<String, Integer> getThreadCounts();
 }

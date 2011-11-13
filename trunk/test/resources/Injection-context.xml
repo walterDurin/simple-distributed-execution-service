@@ -1,27 +1,24 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<!DOCTYPE beans PUBLIC "-//SPRING//DTD BEAN//EN" "http://www.springframework.org/dtd/spring-beans.dtd">
+<beans xmlns="http://www.springframework.org/schema/beans"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xmlns:context="http://www.springframework.org/schema/context"
+    xsi:schemaLocation="http://www.springframework.org/schema/beans 
+        http://www.springframework.org/schema/beans/spring-beans-3.0.xsd
+        http://www.springframework.org/schema/context 
+        http://www.springframework.org/schema/context/spring-context-3.0.xsd">
 
-<beans>
+  <context:annotation-config/>
+    
+  <bean id="clientService" class="grid.x.HazelcastCacheService" factory-method="createInstance" lazy-init="true">
+    <constructor-arg type="String" value="cacheX" />
+  </bean>
 
-	<bean id="clientService" 
-		class="grid.x.HazelcastCacheService"
-		factory-method="createInstance" 
-		lazy-init="true">
-		<constructor-arg type="String" value="cacheX" />
-	</bean>
+  <bean id="cacheServicex" class="grid.x.MapCacheService" factory-method="createInstance" lazy-init="true">
+    <constructor-arg type="String" value="cacheXxx" />
+  </bean>
 
-	<bean id="cacheServicex" 
-		class="grid.x.MapCacheService"
-		factory-method="createInstance" 
-		lazy-init="true">
-		<constructor-arg type="String" value="cacheXxx" />
-	</bean>
-
-	<bean id="cacheService" 
-		class="com.tangosol.net.CacheFactory"
-		factory-method="getCache" 
-		lazy-init="true">
-		<constructor-arg type="String" value="Dist-Cache" />
-	</bean>
+  <bean id="cacheService" class="com.tangosol.net.CacheFactory" factory-method="getCache" lazy-init="true">
+    <constructor-arg type="String" value="Dist-Cache" />
+  </bean>
 
 </beans>

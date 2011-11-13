@@ -40,8 +40,9 @@ public interface IInvocationService extends ExecutorService
 
     void pause();
 
-	/**
-     * 
-     */
     void unPause();
+    
+    void addObserver(ITaskObserver o);
+
+    void removeObserver(ITaskObserver o);
 }

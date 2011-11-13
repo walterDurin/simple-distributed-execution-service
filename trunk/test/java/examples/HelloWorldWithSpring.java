@@ -1,7 +1,7 @@
 package examples;
 
 import grid.server.ITask;
-import grid.server.Inject;
+import grid.server.ITaskObserver;
 import grid.server.TaskExecutor;
 import integration.proto.FibonacciTask;
 import integration.proto.TestHandler;
@@ -49,13 +49,26 @@ public class HelloWorldWithSpring
 
     	Collection<ITask<String>> tasks = FibonacciTask.generateTasks(3);
 		
-    	TestHandler handler = new TestHandler("TestHelloWorld");
+    	TestHandler resultHandler = new TestHandler("TestHelloWorld");
+    	
+    	ITaskObserver taskObserver = new ExampleTaskObserver();
 
-		executor.execute(tasks,handler);		
+		executor.execute(tasks,resultHandler,taskObserver);		
 		
-		handler.await();
+		resultHandler.await();
 		
 		executor.shutdown();
 	}
+}
 
+class ExampleTaskObserver implements ITaskObserver
+{
+	/* (non-Javadoc)
+     * @see grid.server.IProgressObserver#update(java.lang.String, java.lang.Object)
+     */
+    @Override
+    public void update(String taskID, Object arg)
+    {
+    	System.out.println("Progress: task="+taskID+" - "+arg);
+    }
 }

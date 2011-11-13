@@ -19,6 +19,7 @@ package grid.cluster.master;
 import grid.cluster.shared.GridConfig;
 import grid.cluster.shared.IExecutable;
 import grid.server.IInvocationService;
+import grid.server.ITaskObserver;
 
 import java.rmi.RemoteException;
 import java.util.List;
@@ -63,7 +64,7 @@ public class RemoteInvocationService extends AbstractExecutorService implements 
     public RemoteInvocationService(int brokerPort, List<String> jvmNodeParams, GridConfig gridConfig,String serviceName) throws RemoteException
     {
     	this.broker = new Broker<Object>(brokerPort,jvmNodeParams,gridConfig,serviceName);
-    	this.serviceName = gridConfig.getLibraryName();
+    	this.serviceName = gridConfig.getLibraryName();    	
     }
     
 	/**
@@ -241,5 +242,23 @@ public class RemoteInvocationService extends AbstractExecutorService implements 
 	        throw new RuntimeException( e );
         }
 	    
+    }
+
+	/* (non-Javadoc)
+     * @see grid.server.IInvocationService#addObserver(grid.server.IProgressObserver)
+     */
+    @Override
+    public void addObserver(ITaskObserver o)
+    {
+    	this.broker.add(o);
+    }
+
+	/* (non-Javadoc)
+     * @see grid.server.IInvocationService#removeObserver(grid.server.IProgressObserver)
+     */
+    @Override
+    public void removeObserver(ITaskObserver o)
+    {
+    	this.broker.remove(o);
     }
 }

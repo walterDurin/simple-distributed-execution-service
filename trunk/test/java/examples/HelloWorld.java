@@ -2,7 +2,6 @@ package examples;
 
 import grid.server.ITask;
 import grid.server.ITaskExecutor;
-import grid.server.Inject;
 import grid.server.TaskExecutors;
 import integration.proto.FibonacciTask;
 import integration.proto.TestHandler;

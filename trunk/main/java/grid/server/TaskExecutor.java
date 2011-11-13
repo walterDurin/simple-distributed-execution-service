@@ -61,15 +61,27 @@ public class TaskExecutor implements ITaskExecutor
     	localExecutor = Executors.newFixedThreadPool(3);    
     }
 
-	/* (non-Javadoc)
+    /* (non-Javadoc)
      * @see grid.server.ITaskExecutor#execute(java.util.Collection, grid.server.IResultHandler)
      */
     @Override
     public <T> void execute(final Collection<ITask<T>> tasks, final IResultHandler<T> handler) throws Exception
     {
+    	this.execute(tasks, handler, null);
+    }
+
+    /* (non-Javadoc)
+     * @see grid.server.ITaskExecutor#execute(java.util.Collection, grid.server.IResultHandler, grid.server.ITaskObserver)
+     */
+    @Override
+    public <T> void execute(final Collection<ITask<T>> tasks, final IResultHandler<T> handler, final ITaskObserver taskObserver) throws Exception
+    {
     	if(tasks.size()==0)return;
     	
-//		final CompletionService<ITaskResult<T>> cs = new ExecutorCompletionService<ITaskResult<T>>(this.localExecutor);
+    	if(taskObserver!=null)
+    		this.invocationService.addObserver(taskObserver);
+
+    	//final CompletionService<ITaskResult<T>> cs = new ExecutorCompletionService<ITaskResult<T>>(this.localExecutor);
 		final CompletionService<ITaskResult<T>> cs = new ExecutorCompletionService<ITaskResult<T>>(this.invocationService);
 
 		int size = 0;
@@ -112,6 +124,8 @@ public class TaskExecutor implements ITaskExecutor
 				finally
 				{
 					handler.onCompleted();
+			    	if(taskObserver!=null)
+			    		invocationService.removeObserver(taskObserver);
 				}
 	            return null;
             }

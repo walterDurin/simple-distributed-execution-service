@@ -51,15 +51,26 @@ public interface ITaskExecutor
 
 	/**
 	 * A-Synchronous contract - handles the results to 
-	 * the callback handler. 
-	 * Will return when all jobs executed (or have thrown exception)
-	 * @param <T>
+	 * an {@link IResultHandler} callback handler. 
+	 * Will return when all jobs executed or exception thrown.
 	 * @param <T>
 	 * @param job
 	 * @param handler
 	 * @throws Exception 
 	 */
 	public abstract <T> void execute(Collection<ITask<T>> tasks, IResultHandler<T> handler) throws Exception;
+
+    /**
+	 * A-Synchronous contract - handles the results to 
+	 * an {@link IResultHandler} callback handler. 
+	 * Will return when all jobs executed or exception thrown.
+	 * @param <T>
+     * @param tasks
+     * @param handler
+     * @param taskObserver
+     * @throws Exception
+     */
+    public abstract <T> void execute(Collection<ITask<T>> tasks, IResultHandler<T> handler, ITaskObserver taskObserver) throws Exception;
 
 	/**
 	 * Asynchronous submission of a batch job (with timeouts)

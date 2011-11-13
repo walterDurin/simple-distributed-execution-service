@@ -20,10 +20,11 @@ import grid.cluster.shared.BrokerInfo;
 import grid.cluster.shared.GridConfig;
 import grid.cluster.shared.IBroker;
 import grid.cluster.shared.IExecutable;
-import grid.cluster.shared.IProgressMonitor;
 import grid.cluster.shared.IRemoteResult;
 import grid.cluster.shared.IRemoteResultsHandler;
+import grid.cluster.shared.ITaskMonitor;
 import grid.cluster.shared.IWorkQueue;
+import grid.server.ITaskObserver;
 import grid.util.BlockingMap;
 import grid.util.GateLatch;
 
@@ -156,28 +157,35 @@ public class Broker<V> implements IBroker<V>
 	    }
 	}
 
-	private final class ProgressMonitor extends UnicastRemoteObject implements IProgressMonitor<String>,Serializable
+	private List<ITaskObserver> observers = new ArrayList<ITaskObserver>();
+
+	public void add(ITaskObserver o)
+	{
+		this.observers.add(o);
+	}
+
+	public void remove(ITaskObserver o)
+    {
+		this.observers.remove(o);
+    }
+	
+	private final class ProgressMonitor extends UnicastRemoteObject implements ITaskMonitor<String>
 	{		
 		private static final long serialVersionUID = 2362910027458128946L;
 		protected ProgressMonitor() throws RemoteException
 	    {
 	        super();
 	    }
-		/* (non-Javadoc)
-         * @see grid.cluster.shared.IProgressMonitor#accept(grid.cluster.shared.IProgress)
-         */
-//        @Override
-//        public void accept(IProgress<String> p) throws RemoteException
-//        {
-//        	System.out.println("XXXX "+p.getProgress());
-//        }
-		/* (non-Javadoc)
-         * @see grid.cluster.shared.IProgressMonitor#accept(java.lang.String)
+        /* (non-Javadoc)
+         * @see grid.cluster.shared.ITaskMonitor#notify(java.lang.Object, java.lang.String)
          */
         @Override
-        public void accept(String monitoringMsg) throws RemoteException
+        public void notify(String msg, String taskID) throws RemoteException
         {
-        	System.out.println("Received monitoring msg: "+monitoringMsg);
+        	for (ITaskObserver o : observers)
+            {
+	            o.update(taskID, msg);
+            }
         }
 	}
 
@@ -390,8 +398,9 @@ public class Broker<V> implements IBroker<V>
      * @see grid.cluster.shared.IBroker#getProgressMonitor()
      */
     @Override
-    public IProgressMonitor<?> getProgressMonitor() throws RemoteException
+    public ITaskMonitor<?> getProgressMonitor() throws RemoteException
     {
 	    return this.progressMonitor;
     }
+
 }

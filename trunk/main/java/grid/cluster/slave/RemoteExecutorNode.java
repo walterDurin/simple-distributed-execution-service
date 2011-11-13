@@ -18,8 +18,6 @@ package grid.cluster.slave;
 
 import grid.cluster.shared.IBroker;
 import grid.cluster.shared.IExecutable;
-import grid.cluster.shared.IProgress;
-import grid.cluster.shared.IProgressMonitor;
 import grid.cluster.shared.IRemoteResultsHandler;
 import grid.cluster.shared.IWorkQueue;
 
