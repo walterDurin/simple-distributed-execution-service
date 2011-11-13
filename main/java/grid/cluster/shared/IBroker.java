@@ -47,6 +47,6 @@ public interface IBroker<V> extends Serializable
 	
     public Integer getConnectionID() throws RemoteException;
     
-	public  IProgressMonitor<?> getProgressMonitor() throws RemoteException;
+	public  ITaskMonitor<?> getProgressMonitor() throws RemoteException;
 
 }

@@ -22,9 +22,8 @@ import java.rmi.RemoteException;
 
 /**
  * @author rkehoe
- *
  */
-public interface IProgressMonitor<T> extends Serializable,Remote
+public interface ITaskMonitor<T> extends Serializable,Remote
 {
-	void accept(String msg) throws RemoteException ;
+    void notify(T msg, String taskID) throws RemoteException;
 }

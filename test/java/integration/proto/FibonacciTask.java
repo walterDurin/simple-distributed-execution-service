@@ -1,14 +1,14 @@
 package integration.proto;
 
-import grid.cluster.shared.IProgressMonitor;
+import grid.cluster.shared.ITaskMonitor;
 import grid.server.ITask;
 import grid.server.ITaskResult;
-import grid.server.Inject;
-import grid.server.Monitor;
 
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Map;
+
+import javax.annotation.Resource;
 
 /**
  * 
@@ -24,19 +24,14 @@ public class FibonacciTask implements ITask<String>
     private static final long serialVersionUID = 1L;
 
     /**
-     * This field will be injected if this task is executed
-     * on the grid. The {@link #resultsCache} will then be a 
-     * distributed and shared amongst all other executing
-     * tasks.
-     * If this task is not executed on the grid, then it will still
-     * work as the {@link #resultsCache} will just use
-     * the initialising local HashMap as a cache. 
+     * Tip: Use @Resource rather than @Autowired when
+     * dealing with Map<,> 
      */
-    @Inject(name = "cacheService")
-	public Map<Integer, Long> resultsCache = null;//new HashMap<Integer, Long>();
+    @Resource(name="cacheService")
+    public Map<Integer, Long> resultsCache = null;
 
-    @Monitor
-    private IProgressMonitor<String> monitor;
+    @Resource
+    private ITaskMonitor<String> monitor;
     
 	private final Integer id;
 	private String version = "Caf1";
@@ -46,12 +41,13 @@ public class FibonacciTask implements ITask<String>
 		this.id = id;
     }
 
-	public long fib(int n)
+	public long fib(int n) throws Exception
 	{
 		Long x = resultsCache.get(n);
 
 		if (x != null)
 		{
+			monitor.notify("Retrieved result from cache: "+n+"->"+x,this.getID());
 			return x;
 		}
 		
@@ -62,6 +58,7 @@ public class FibonacciTask implements ITask<String>
 		else // else where n >= 2
 		{
 			long f = fib(n - 1) + fib(n - 2);
+			monitor.notify("Adding result to cache: "+n+"->"+f,this.getID());
 			resultsCache.put(n, f);
 			return f;
 		}
@@ -104,9 +101,9 @@ public class FibonacciTask implements ITask<String>
 		resultsCache.put(0, 0L);
 		resultsCache.put(1, 1L);
 
-		monitor.accept("This is a progress msg from task "+getID());
+		monitor.notify("Starting progress on task.",this.getID());
 
-		String result = "Fibonacci result = "+this.fib(20)+" (Calculated by "+Thread.currentThread().getName()+")";
+		String result = "Fibonacci result = "+this.fib(40)+" (Calculated by "+Thread.currentThread().getName()+")";
 		System.out.println("Task: "+getID()+" executed - Result = "+result);		
 		System.out.println("Calculation cache: "+this.resultsCache.values() );
 

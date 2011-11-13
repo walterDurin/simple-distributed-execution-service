@@ -26,7 +26,6 @@ import java.net.URL;
 import java.net.URLClassLoader;
 import java.util.Arrays;
 
-import org.springframework.context.ApplicationContext;
 import org.springframework.context.support.ClassPathXmlApplicationContext;
 import org.springframework.remoting.rmi.RmiProxyFactoryBean;
 
@@ -92,15 +91,17 @@ public class NodeMain
 			Thread.currentThread().setContextClassLoader(loader);
 		}
 
+		InjectionInterceptor interceptor = new InjectionInterceptor();
+
 		if(gridConfig.injectionContextDefined())
 		{
 			String injectionContext = gridConfig.getInjectionContext();
-			ApplicationContext ctx = new ClassPathXmlApplicationContext(injectionContext);
-			IInterceptor interceptor = new InjectionInterceptor(ctx);
-			remoteExecutor.add(interceptor);			
+			ClassPathXmlApplicationContext ctx = new ClassPathXmlApplicationContext(injectionContext);
+			interceptor.setContext(ctx);
 		}
 
-		IInterceptor interceptor = new MonitorInterceptor(broker.getProgressMonitor());
+		interceptor.addBean("monitor",broker.getProgressMonitor());
+
 		remoteExecutor.add(interceptor);			
 
 		remoteExecutor.start();
