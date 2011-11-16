@@ -4,8 +4,10 @@ import grid.cluster.shared.ITaskMonitor;
 import grid.server.ITask;
 import grid.server.ITaskResult;
 
+import java.rmi.RemoteException;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.HashMap;
 import java.util.Map;
 
 import javax.annotation.Resource;
@@ -28,10 +30,18 @@ public class FibonacciTask implements ITask<String>
      * dealing with Map<,> 
      */
     @Resource(name="cacheService")
-    public Map<Integer, Long> resultsCache = null;
+    public Map<Integer, Long> resultsCache = new HashMap<Integer,Long>();
 
     @Resource
-    private ITaskMonitor<String> monitor;
+    private ITaskMonitor<String> monitor = new ITaskMonitor<String>() {
+
+        private static final long serialVersionUID = 1L;
+
+		@Override
+        public void notify(String msg, String taskID) throws RemoteException
+        {
+			//Do nothing - as this is just a dummy implementation for non grid execution service
+        }};
     
 	private final Integer id;
 	private String version = "Caf1";
