@@ -1,0 +1,312 @@
+#summary Comparative analysis with alternative storage mechanisms.
+
+= Introduction =
+How fast is a micro-ORM approach such as this? 
+How does it compare to standard JPA?
+Is it quick enough to be a practical alternative to distributed hash maps?
+
+= Details =
+
+Here are some typical results using a test set of 100,000 Vehicles (see code below).
+
+Three measurements were taken:
+  * time taken for insertion
+  * time taken for extraction (with predicate _colour = 'Red' and manufacturer = 'Farrari'_)
+  * time taken for 2nd extraction, same predicate but after another 'Red Fararri' was inserted into the store.
+
+= Result Summary =
+|| *Condition* || *Time Inserts* || *Time Extraction (1st)* || *Time Extraction (2nd)* ||
+|| Coherence remote storage memory|| 5 sec: 391 ms || 51 ms || 29 ms ||
+|| JPA H2 Remote in-memory storage || 11 sec: 186 ms|| 60 ms || 1 ms ||
+|| JPA H2 Remote disk storage || 12 sec: 423 ms|| 185 ms || 2 ms ||
+|| JPA H2 in-memory storage || 3 sec: 173 ms|| 57 ms || 0 ms ||
+|| JPA H2 SQL Server || 18 sec: 968 ms|| 776 ms || 24 ms ||
+|| QueryableStore remote in-memory || 3 sec: 998 ms|| 2 ms || 1 ms ||
+|| QueryableStore remote disk || 7 sec: 342 ms|| 3 ms || 1 ms ||
+|| QueryableStore in-memory || 677 ms|| 1 ms || 1 ms ||
+
+= Varia =
+
+In order to get level playing field all storage was indexed on 'Colour' and 'Manufacturer'.
+
+Externalizable was used for both Coherence and JPA and QueryableStore.
+
+There was no discernible difference between POF and Externalizable, so Externalizable was chosen for all.
+
+The @Id was generated on construction - to keep Coherence and DB comparable.
+
+*Vehicle.java*
+{{{
+
+package example.domain.objects;
+
+import java.io.Externalizable;
+import java.io.IOException;
+import java.io.ObjectInput;
+import java.io.ObjectOutput;
+import java.util.UUID;
+
+import javax.persistence.Column;
+import javax.persistence.Entity;
+import javax.persistence.Id;
+
+import org.eclipse.persistence.annotations.Index;
+import org.eclipse.persistence.annotations.Indexes;
+
+import queryable.store.Ignore;
+
+import com.tangosol.io.pof.PofReader;
+import com.tangosol.io.pof.PofWriter;
+import com.tangosol.io.pof.PortableObject;
+@Entity
+@Indexes(
+		{
+		@Index(name="MAN_COL_INDEX", columnNames={"manufacturer,Colour"}),
+		@Index(name="COL_INDEX", columnNames={"Colour"})
+		})
+public class Vehicle implements PortableObject,Externalizable
+{
+	private static int COUNT = 0;
+	private static final long serialVersionUID = 1L;
+	
+	//	@Version
+	//	private int versionNum;
+	//  public int getVersionNum() { return versionNum; }
+
+	public String	colour;
+
+	@Column()
+	public String	manufacturer;
+	@Column()
+	@Ignore
+	public String	model;
+	@Column()
+	@Ignore
+	public String	type;
+	@Column()
+	@Ignore
+	public double	weight;
+	@Column()
+	@Ignore
+	public int	  seats;
+	@Column()
+	@Ignore
+	public int	  doors;
+	@Column()
+	@Ignore
+	public int	  engineCapacity;
+	@Id
+	//	@GeneratedValue(strategy = GenerationType.IDENTITY)
+	private String id;
+
+	private int count = 1;
+
+    public Vehicle()
+    {
+    }
+    
+    public Vehicle(Colour colour, Manufacturer manufacturer, VehicleType type, String model, double weight, int seats, int doors, int engineCapacity)
+    {
+   		this.count = COUNT++;
+    	this.id = UUID.randomUUID().toString();
+    	this.model = model;
+		this.weight = weight;
+		this.seats = seats;
+		this.doors = doors;
+		this.engineCapacity = engineCapacity;
+		this.colour = colour.name();
+    	this.manufacturer = manufacturer.name();
+    	this.type = type.name();
+    }
+    
+    @Override
+    public String toString()
+    {
+	    return "Vehicle [colour=" + this.colour + ", manufacturer=" + this.manufacturer + ", model=" + this.model + ", type=" + this.type + ", weight=" + this.weight + ", seats="
+	            + this.seats + ", doors=" + this.doors + ", engineCapacity=" + this.engineCapacity + ", id=" + this.id + ", count=" + this.count + "]";
+    }
+
+	public Vehicle setColour(Colour c)
+    {
+	    this.colour = c.toString();
+	    return this;
+    }
+
+	/**
+     * @return the id
+     */
+    public String getId()
+    {
+	    return this.id;
+    }
+    /**
+     * @return the colour
+     */
+	@Column(name="Colour")
+    public String getColour()
+    {
+	    return this.colour;
+    }
+
+	/**
+     * @return the manufacturer
+     */
+    public String getManufacturer()
+    {
+	    return this.manufacturer;
+    }
+
+	/* (non-Javadoc)
+     * @see java.lang.Object#hashCode()
+     */
+    @Override
+    public int hashCode()
+    {
+	    final int prime = 31;
+	    int result = 1;
+	    result = prime * result + ((this.colour == null) ? 0 : this.colour.hashCode());
+	    result = prime * result + this.doors;
+	    result = prime * result + this.engineCapacity;
+	    result = prime * result + ((this.manufacturer == null) ? 0 : this.manufacturer.hashCode());
+	    result = prime * result + ((this.model == null) ? 0 : this.model.hashCode());
+	    result = prime * result + this.seats;
+	    result = prime * result + ((this.type == null) ? 0 : this.type.hashCode());
+	    long temp;
+	    temp = Double.doubleToLongBits(this.weight);
+	    result = prime * result + (int) (temp ^ (temp >>> 32));
+	    return result;
+    }
+
+	/* (non-Javadoc)
+     * @see java.lang.Object#equals(java.lang.Object)
+     */
+    @Override
+    public boolean equals(Object obj)
+    {
+	    if (this == obj)
+		    return true;
+	    if (obj == null)
+		    return false;
+	    if (getClass() != obj.getClass())
+		    return false;
+	    Vehicle other = (Vehicle) obj;
+	    if (this.colour == null)
+	    {
+		    if (other.colour != null)
+			    return false;
+	    }
+	    else if (!this.colour.equals(other.colour))
+		    return false;
+	    if (this.doors != other.doors)
+		    return false;
+	    if (this.engineCapacity != other.engineCapacity)
+		    return false;
+	    if (this.id == null)
+	    {
+		    if (other.id != null)
+			    return false;
+	    }
+	    else if (!this.id.equals(other.id))
+		    return false;
+	    if (this.manufacturer == null)
+	    {
+		    if (other.manufacturer != null)
+			    return false;
+	    }
+	    else if (!this.manufacturer.equals(other.manufacturer))
+		    return false;
+	    if (this.model == null)
+	    {
+		    if (other.model != null)
+			    return false;
+	    }
+	    else if (!this.model.equals(other.model))
+		    return false;
+	    if (this.seats != other.seats)
+		    return false;
+	    if (this.type == null)
+	    {
+		    if (other.type != null)
+			    return false;
+	    }
+	    else if (!this.type.equals(other.type))
+		    return false;
+	    if (Double.doubleToLongBits(this.weight) != Double.doubleToLongBits(other.weight))
+		    return false;
+	    return true;
+    }
+
+	/* (non-Javadoc)
+     * @see com.tangosol.io.pof.PortableObject#readExternal(com.tangosol.io.pof.PofReader)
+     */
+    //    @Override
+    public void readExternal(PofReader r) throws IOException
+    {
+	    this.colour = r.readString(0);
+	    this.count = r.readInt(1);
+	    this.doors = r.readInt(2);
+	    this.engineCapacity = r.readInt(3);
+	    this.id = r.readString(4);
+	    this.manufacturer = r.readString(5);
+	    this.model = r.readString(6);
+	    this.seats = r.readInt(7);
+	    this.type = r.readString(8);
+	    this.weight = r.readDouble(9);
+    }
+
+	/* (non-Javadoc)
+     * @see com.tangosol.io.pof.PortableObject#writeExternal(com.tangosol.io.pof.PofWriter)
+     */
+    //    @Override
+    public void writeExternal(PofWriter w) throws IOException
+    {
+	    w.writeString(0, this.colour);
+	    w.writeInt(1, this.count);
+	    w.writeInt(2, this.doors);
+	    w.writeInt(3, this.engineCapacity);
+	    w.writeString(4, this.id);
+	    w.writeString(5, this.manufacturer);
+	    w.writeString(6, this.model);
+	    w.writeInt(7, this.seats);
+	    w.writeString(8, this.type);
+	    w.writeDouble(9, this.weight);
+    }
+
+	/* (non-Javadoc)
+     * @see java.io.Externalizable#writeExternal(java.io.ObjectOutput)
+     */
+    //    @Override
+    public void writeExternal(ObjectOutput out) throws IOException
+    {
+    	out.writeUTF(colour);
+    	out.writeInt(count);
+    	out.writeInt(doors);    	
+    	out.writeInt(engineCapacity);
+    	out.writeUTF(id);
+    	out.writeUTF(manufacturer);
+    	out.writeUTF(model);
+    	out.writeInt(seats);
+    	out.writeUTF(type);
+    	out.writeDouble(weight);	    
+    }
+
+	/* (non-Javadoc)
+     * @see java.io.Externalizable#readExternal(java.io.ObjectInput)
+     */
+    //    @Override
+    public void readExternal(ObjectInput in) throws IOException, ClassNotFoundException
+    {
+    	colour = in.readUTF();
+	    count = in.readInt();
+	    doors = in.readInt();
+	    engineCapacity = in.readInt();
+	    id = in.readUTF();
+	    manufacturer = in.readUTF();
+	    model = in.readUTF();
+	    seats = in.readInt();
+	    type = in.readUTF();
+	    weight = in.readDouble();
+    }
+}
+
+}}}
