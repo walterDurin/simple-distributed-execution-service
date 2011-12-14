@@ -12,7 +12,13 @@ Here are some typical results using a test set of 100,000 Vehicles (see code bel
 Three measurements were taken:
   * time taken for insertion
   * time taken for extraction (with predicate _colour = 'Red' and manufacturer = 'Farrari'_)
-  * time taken for 2nd extraction, same predicate but after another 'Red Fararri' was inserted into the store.
+  * time taken for 2nd extraction, same predicate but after more 'Red Farraris' were inserted into the store.
+
+{{{
+	private static final int	            FARRARI_COUNT	  = 11;
+	private static final int	            FARRARI_COUNT_2nd	= 3;
+	private static final int	            NON_FARRARI_COUNT	= 100000;
+}}}
 
 = Result Summary =
 || *Condition* || *Time Inserts* || *Time Extraction (1st)* || *Time Extraction (2nd)* ||
@@ -34,6 +40,8 @@ Externalizable was used for both Coherence and JPA and QueryableStore.
 There was no discernible difference between POF and Externalizable, so Externalizable was chosen for all.
 
 The @Id was generated on construction - to keep Coherence and DB comparable.
+
+Test box was a quad core i7 running windows 7 with 6GB.
 
 *Vehicle.java*
 {{{
