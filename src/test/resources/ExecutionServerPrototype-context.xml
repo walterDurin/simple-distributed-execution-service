@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xmlns:util="http://www.springframework.org/schema/util"
+       xsi:schemaLocation="
+       		http://www.springframework.org/schema/beans 
+       		http://www.springframework.org/schema/beans/spring-beans-3.0.xsd
+			http://www.springframework.org/schema/util 
+			http://www.springframework.org/schema/util/spring-util-3.0.xsd">
+
+	<bean id="testExecutor-A" class="com.rk.grid.server.TaskExecutor"  lazy-init="true">
+		<constructor-arg index="0">
+			<ref bean="remoteExecutorService-A" />
+		</constructor-arg>
+	</bean>
+
+	<bean id="remoteExecutorService-A" class=" com.rk.grid.cluster.master.GridExecutorService"  lazy-init="true"> 
+		<constructor-arg index="0" value="1234"/> 	<!-- broker port -->
+		<constructor-arg index="1" >				<!-- node jvm args -->
+			<util:list list-class="java.util.ArrayList">
+				<value>-Dtangosol.coherence.cacheconfig=dist-cache-config.xml</value>
+				<value>-Xms16m</value>
+				<value>-Xmx100m</value>				
+			</util:list>		
+		</constructor-arg>
+		<constructor-arg index="2" >				<!-- config for nodes & service -->
+			<bean class="com.rk.grid.cluster.shared.GridConfig">
+				<property name="clusterSize" value="10" />
+				<property name="remoteNodeThreadpoolSize" value="5" />
+				<property name="injectionContext" value="Task-Autowiring-Example-context.xml" />				
+                <property name="executionNamespace" value="fibNamespaceA"/>
+			</bean>
+		</constructor-arg>
+        <constructor-arg index="3" value="Grid-A"/>   <!-- Service name -->
+	</bean>
+
+
+</beans>   
