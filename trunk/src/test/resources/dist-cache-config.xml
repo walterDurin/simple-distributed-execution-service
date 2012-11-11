@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE cache-config SYSTEM "cache-config.dtd">
+<cache-config>
+    <caching-scheme-mapping>
+        
+        <cache-mapping>
+            <cache-name>Dist-Cache</cache-name>
+            <scheme-name>default-distributed</scheme-name>
+        </cache-mapping>
+    </caching-scheme-mapping>
+    <caching-schemes>
+        <!--
+        Default Distributed caching scheme.
+        -->
+        <distributed-scheme>
+            <scheme-name>default-distributed</scheme-name>
+            <service-name>DistributedCache</service-name>
+            <backing-map-scheme>
+                <class-scheme>
+                    <scheme-ref>default-backing-map</scheme-ref>
+                </class-scheme>
+            </backing-map-scheme>
+        </distributed-scheme>
+         <class-scheme>
+            <scheme-name>default-backing-map</scheme-name>
+            <class-name>com.tangosol.util.SafeHashMap</class-name>
+         </class-scheme>
+  <autostart>true</autostart>
+ </caching-schemes>
+</cache-config>
