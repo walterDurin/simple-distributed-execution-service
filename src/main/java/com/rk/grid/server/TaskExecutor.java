@@ -27,7 +27,6 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
 
-import com.google.common.collect.Lists;
 import com.rk.grid.cluster.shared.IExecutable;
 
 
@@ -59,7 +58,7 @@ public class TaskExecutor implements ITaskExecutor
     	
     	es.start();
     	
-    	localExecutor = Executors.newFixedThreadPool(3);    
+    	localExecutor = Executors.newCachedThreadPool();    
     }
 
     /* (non-Javadoc)
@@ -85,15 +84,6 @@ public class TaskExecutor implements ITaskExecutor
     	//final CompletionService<ITaskResult<T>> cs = new ExecutorCompletionService<ITaskResult<T>>(this.localExecutor);
 		final CompletionService<ITaskResult<T>> completionService = new ExecutorCompletionService<ITaskResult<T>>(this.invocationService);
 
-//		List<Future<ITaskResult<T>>> taskFutures = Lists.newArrayList();
-//    	for (final ITask<T> t : tasks)
-//    	{
-//    			Future<ITaskResult<T>> future = completionService.submit(t);
-//    			taskFutures.add(future);
-//    	}
-//
-//    	final  int totalSubmissionCount = taskFutures.size();
-
 		for (final ITask<T> t : tasks)
     	{
     			completionService.submit(t);
@@ -101,16 +91,14 @@ public class TaskExecutor implements ITaskExecutor
 
     	final  int totalSubmissionCount = tasks.size();
 
-    	System.out.println("XXX Have submitted "+tasks.size()+" tasks.");
-        (new Thread(new Runnable() 
-        {
+    	Callable<?> callable = new Callable<Object>() 
+    	{
 			@Override
-            public void run()
-            {
+            public Object call() throws Exception
+            {				
 		    	try
 				{
 		    		handler.onStarted();
-					
 		    		// ... task not necessarily started!
 					for (int i = 0; i < totalSubmissionCount; i++)
 					{
@@ -136,48 +124,11 @@ public class TaskExecutor implements ITaskExecutor
 			    	if(taskObserver!=null)
 			    		invocationService.removeObserver(taskObserver);
 				}
+	            return null;
             }
-		})).start();
+		};
 
-//    	Callable<?> callable = new Callable<Object>() 
-//    	{
-//			@Override
-//            public Object call() throws Exception
-//            {				
-//		    	try
-//				{
-//		    		handler.onStarted();
-//					
-//		    		// ... task not necessarily started!
-//					for (int i = 0; i < totalSubmissionCount; i++)
-//					{
-//						Future<ITaskResult<T>> future = completionService.take();
-//		                try
-//		                {
-//		                	ITaskResult<T> t = future.get();
-//			                handler.onResult(t);
-//		                }
-//		                catch (Throwable e)
-//		                {
-//		               		handler.onError(e);
-//		                }
-//					}
-//				}
-//				catch (Exception e)
-//				{
-//					handler.onError(new BatchException(e));
-//				}
-//				finally
-//				{
-//					handler.onCompleted();
-//			    	if(taskObserver!=null)
-//			    		invocationService.removeObserver(taskObserver);
-//				}
-//	            return null;
-//            }
-//		};
-//
-//		this.localExecutor.submit(callable);
+		this.localExecutor.submit(callable);
 	}
 
 	/* (non-Javadoc)
