@@ -132,17 +132,20 @@ public abstract class Handler<T> implements IResultHandler<T>
     	System.out.println(msg);
     }
 
+    
+
     /* (non-Javadoc)
-     * @see java.lang.Object#toString()
-     */
+	 * @see java.lang.Object#toString()
+	 */
     @Override
     public String toString()
     {
-	    return "Handler [completed=" + this.completed + ", elapsedTimeMillis=" + this.elapsedTimeMillis + ", job=" + this.jobDescription + ", rejectedCount=" + this.rejectedCount
-	            + ", resultCount=" + this.resultCount + "] "+threadCounts;
+	    return "Handler [completed=" + this.completed + ", resultCount=" + this.resultCount + ", errorCount=" + this.errorCount+ ", rejectedCount=" + this.rejectedCount + ", elapsedTimeMillis="
+	            + this.elapsedTimeMillis + ", startTimeMillis=" + this.startTimeMillis + ", started=" + this.started  + ", threadCounts="
+	            + this.threadCounts + ", jobDescription=" + this.jobDescription + "]";
     }
 
-    @Override
+	@Override
     public synchronized Map<String,Integer> getThreadCounts()
     {
     	return Collections.unmodifiableMap(this.threadCounts);
