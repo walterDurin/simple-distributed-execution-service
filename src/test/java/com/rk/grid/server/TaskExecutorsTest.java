@@ -16,23 +16,21 @@
  */
 package com.rk.grid.server;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
 
 import java.util.Collection;
-import java.util.Set;
+import java.util.Collections;
+import java.util.List;
 
 import org.junit.After;
-import org.junit.AfterClass;
 import org.junit.Before;
-import org.junit.BeforeClass;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.context.ApplicationContext;
-import org.springframework.context.support.ClassPathXmlApplicationContext;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
+import com.rk.grid.testing.ErrorTask;
 import com.rk.grid.testing.FibonacciTask;
 import com.rk.grid.testing.TestHandler;
 import com.rk.grid.testing.TestObserver;
@@ -135,6 +133,34 @@ public class TaskExecutorsTest
 		assertEquals(taskCount,resultHandler.getResultCount());
 		assertEquals(0,resultHandler.getRejectedCount());
 		assertEquals(0,resultHandler.getErrorCount());		
+	}
+
+	/**
+	 * Test method for {@link com.rk.grid.server.TaskExecutors#newFixedCluster(java.lang.String, int, int, java.lang.String[])}.
+	 * @throws Exception 
+	 */
+	@Test
+	public void testErrorReporting() throws Exception
+	{
+		ITaskExecutor executor = TaskExecutors.newFixedCluster(3,1,"-Xms20m");
+		executor.unPause();
+    	int taskCount = 30;
+    	List<ITask<String>> tasks = FibonacciTask.generateTasks(taskCount);
+    	
+    	tasks.add(new ErrorTask());
+    	
+    	Collections.shuffle(tasks);
+    	
+    	TestHandler resultHandler = new TestHandler("TestHelloWorld");
+
+		executor.execute(tasks,resultHandler);		
+		
+		resultHandler.await();
+		executor.shutdown();
+		
+		assertEquals(taskCount,resultHandler.getResultCount());
+		assertEquals(0,resultHandler.getRejectedCount());
+		assertEquals(1,resultHandler.getErrorCount());
 	}
 
 
