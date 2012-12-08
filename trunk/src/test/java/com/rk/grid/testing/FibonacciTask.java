@@ -2,8 +2,8 @@ package com.rk.grid.testing;
 
 import java.rmi.RemoteException;
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import javax.annotation.Resource;
@@ -123,14 +123,14 @@ public class FibonacciTask implements ITask<String>
 		return new TestResult(getID(),result);
     }
     
-    public static Collection<ITask<String>> generateTasks(int count)
+    public static List<ITask<String>> generateTasks(int count)
     {
     	return generateTasks(count, "namespace");
     }
     
-    public static Collection<ITask<String>> generateTasks(int count, String namespace)
+    public static List<ITask<String>> generateTasks(int count, String namespace)
     {
-	    Collection<ITask<String>> list = new ArrayList<ITask<String>>();
+	    List<ITask<String>> list = new ArrayList<ITask<String>>();
 	    for (int i = 1; i <= count; i++)
         {
 	        ITask<String> task = new FibonacciTask(i,namespace);
